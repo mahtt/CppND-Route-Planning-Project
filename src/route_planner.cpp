@@ -39,7 +39,7 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
     for(int i = 0; i < current_node->neighbors.size(); i++){
         (current_node->neighbors)[i]->parent = current_node;
         (current_node->neighbors)[i]->h_value = CalculateHValue((current_node->neighbors)[i]);
-        (current_node->neighbors)[i]->g_value = (current_node->neighbors)[i]->distance(*start_node) + current_node->distance(*start_node);
+        (current_node->neighbors)[i]->g_value = (current_node->neighbors)[i]->distance(*current_node) + current_node->g_value;
         (current_node->neighbors)[i]->visited = true;
         open_list.push_back((current_node->neighbors)[i]);
     }
@@ -94,8 +94,8 @@ std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node 
 
     distance *= m_Model.MetricScale(); // Multiply the distance by the scale of the map to get meters.
     return path_found;
-
 }
+
 
 
 // TODO 7: Write the A* Search algorithm here.
@@ -112,11 +112,8 @@ void RoutePlanner::AStarSearch() {
     
     //AddNeighbors(start_node);
     
-    while(!open_list.empty()){
+    while(current_node != end_node){
         current_node = NextNode();
-        if(current_node->distance(*end_node) == 0){
-            break;
-        }
         AddNeighbors(current_node);
     }
     m_Model.path = ConstructFinalPath(current_node);
